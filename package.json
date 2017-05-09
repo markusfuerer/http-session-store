@@ -1,0 +1,23 @@
+{
+  "name": "http-session-store",
+  "version": "0.0.1",
+  "description": "HTTP session store",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=4.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markusfuerer/http-session-store.git"
+  },
+  "author": "Markus Fürer",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "cookie": "^0.3.1",
+    "redis": "^2.7.1"
+  }
+}
