@@ -2,7 +2,7 @@
 
 class HttpSessionStore {
 
-    constructor(config) {
+    constructor(host, port) {
         const bluebird = require('bluebird');
         const redis = require('redis');
 
@@ -12,7 +12,7 @@ class HttpSessionStore {
         this.uuid = require('uuid');
         this.cookie = require('cookie');
 
-        this.client = redis.createClient(config.port, config.hostname, { no_ready_check: true });
+        this.client = redis.createClient(port || 6379, host || 'localhost', { no_ready_check: true });
 
         if (config.password) {
             this.client.auth('password', function (err) {
