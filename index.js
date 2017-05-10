@@ -29,7 +29,8 @@ class HttpSessionStore {
         const cookies = this.cookie.parse(req.headers.cookie || '');
         var sessionId = cookies[this.cookieName];
 
-        return this.client.getAsync(sessionId);
+        // use string to prevent redis warning
+        return this.client.getAsync(sessionId || 'undefined');
     }
 
     set(res, uid) {

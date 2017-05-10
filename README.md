@@ -9,7 +9,8 @@ check if for a given session identifier there exists a user-id in the session db
       port: 6379
     };
 
-    const session = new require('http-session-store')(config);
+    const HttpSessionStore = require('http-session-store');
+    const session = new HttpSessionStore(config);
 
     session.set(res, 'foo');
 
