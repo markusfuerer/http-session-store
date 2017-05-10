@@ -41,7 +41,7 @@ class HttpSessionStore {
         // Generate a RFC4122 UUID (random) -> '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
         const sessionId = this.uuid();
 
-        this.client.set(sessionId, uid, redis.print);
+        this.client.set(sessionId, uid);
         res.cookie(this.cookieName, sessionId, options);
     }
 
