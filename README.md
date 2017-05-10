@@ -4,11 +4,16 @@ check if for a given session identifier there exists a user-id in the session db
 
 
 ```
-    const session = require('http-session-store');
+    const config = {
+      hostname: 'localhost',
+      port: 6379
+    };
+
+    const session = new require('http-session-store')(config);
 
     session.set(res, 'foo');
 
     session.check(req).then(uid => {
-      console.log(uid);
+      console.info(uid);
     });
 ```
