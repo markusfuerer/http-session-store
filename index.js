@@ -51,7 +51,7 @@ class HttpSessionStore {
             // prevent redis module warning
             return this.client.getAsync(userId || '').then(_sessionId => {
                 if (sessionId === _sessionId) {
-                    // refresh session entry
+                    // reset session idle timer
                     return this.client.setAsync(sessionId, userId, 'EX', this.idleTime).then(ret => {
                         return true;
                     });
