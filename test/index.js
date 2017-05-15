@@ -13,6 +13,20 @@ describe('store', () => {
         });
     });
 
+    it('get user id from session id 123', done => {
+        session.getUserId('123').then(userId => {
+            assert.equal(userId, 'abc');
+            done();
+        });
+    });
+
+    it('get session id from user id abc', done => {
+        session.getSessionId('abc').then(sessionId => {
+            assert.equal(sessionId, '123');
+            done();
+        });
+    });
+
     it('check validity of session id 123', done => {
         session.check('123').then(valid => {
             assert.equal(valid, true);

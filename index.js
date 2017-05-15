@@ -2,19 +2,21 @@
 
 class HttpSessionStore {
 
-    constructor(host, port, password) {
+    constructor(options) {
         const redis = require('redis');
         const bluebird = require('bluebird');
 
         bluebird.promisifyAll(redis.RedisClient.prototype);
 
-        this.idleTime = 360;
-        this.maxTime = 3600;
+        options = options || {};
 
-        this.client = redis.createClient(port || 6379, host || 'localhost', { no_ready_check: true });
+        this.idleTime = options.idleTime || 360;
+        this.maxTime = options.maxTime || 3600;
 
-        if (password) {
-            this.client.auth(password, (err) => {
+        this.client = redis.createClient(options.port || 6379, options.host || 'localhost', { no_ready_check: true });
+
+        if (options.password) {
+            this.client.auth(options.password, (err) => {
                 if (err) throw err;
             });
         }
@@ -29,6 +31,14 @@ class HttpSessionStore {
             console.log(message);
         }
     }
+
+    getUserId(sessionId) {
+        return this.client.getAsync(sessionId);
+    };
+
+    getSessionId(userId) {
+        return this.client.getAsync(userId);
+    };
 
     create(sessionId, userId) {
         return this.client.setAsync(sessionId, userId, 'EX', this.idleTime).then(ret => {
