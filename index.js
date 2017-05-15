@@ -3,53 +3,63 @@
 class HttpSessionStore {
 
     constructor(host, port, password) {
-        const bluebird = require('bluebird');
         const redis = require('redis');
+        const bluebird = require('bluebird');
 
         bluebird.promisifyAll(redis.RedisClient.prototype);
 
-        this.cookieName = 'sid';
-        this.uuid = require('uuid');
-        this.cookie = require('cookie');
+        this.idleTime = 360;
+        this.maxTime = 3600;
 
         this.client = redis.createClient(port || 6379, host || 'localhost', { no_ready_check: true });
 
         if (password) {
-            this.client.auth(password, function (err) {
+            this.client.auth(password, (err) => {
                 if (err) throw err;
             });
         }
 
-        this.client.on('connect', function () {
-            console.log('Connected to Redis');
+        this.client.on('connect', () => {
+            this.log('Connected to Redis');
         });
     }
 
-    check(req) {
-        const cookies = this.cookie.parse(req.headers.cookie || '');
-        var sessionId = cookies[this.cookieName];
-
-        // use string to prevent redis warning
-        return this.client.getAsync(sessionId || 'undefined');
+    log(message) {
+        if (process.env.NODE_ENV == 'test') {
+            console.log(message);
+        }
     }
 
-    set(res, uid) {
-        const options = {
-            httpOnly: true
-        };
-
-        // Generate a RFC4122 UUID (random) -> '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
-        const sessionId = this.uuid();
-
-        this.client.set(sessionId, uid);
-        res.cookie(this.cookieName, sessionId, options);
+    create(sessionId, userId) {
+        return this.client.setAsync(sessionId, userId, 'EX', this.idleTime).then(ret => {
+            return this.client.setAsync(userId, sessionId, 'EX', this.maxTime);
+        });
     }
 
-    del(req) {
-        const cookies = this.cookie.parse(req.headers.cookie || '');
-        var sessionId = cookies[this.cookieName];
+    check(sessionId) {
+        return this.client.getAsync(sessionId).then(userId => {
+            // prevent redis module warning
+            return this.client.getAsync(userId || '').then(_sessionId => {
+                if (sessionId === _sessionId) {
+                    // refresh session entry
+                    return this.client.setAsync(sessionId, userId, 'EX', this.idleTime).then(ret => {
+                        return true;
+                    });
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    }
 
-        this.client.del(sessionId);
+    delete(sessionId) {
+        return this.client.getAsync(sessionId).then(userId => {
+            return this.client.delAsync(sessionId).then((a) => {
+                this.log('Entry session id deleted');
+                return this.client.delAsync(userId);
+            });
+        });
     }
 }
 
