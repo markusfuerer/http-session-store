@@ -11,18 +11,15 @@ This setting is motivated by the idead that the timeout of the first key-value p
 In the following code snippet we first create a pair of entries for session identifier `123` and user identifier `abc`, then check if the session is valid (and reset the idleTime), and finally get the user id associated with session identifier `123`.
 
 ```js
-    const HttpSessionStore = require('http-session-store');
-    const session = new HttpSessionStore();
+    const session = require('http-session-store')();
 
     session.create('123', 'abc');
 
-    session.check('123').then(valid => {
-      console.log(valid); // output true
+    session.check('123').then(userId => {
+      console.log(userId); // output abc
     });
 
-    session.getUserId('123').then(uid => {
-      console.log(uid); // output abc
-    });
+    session.drop('123');
 ```
 
 ## Installation
@@ -33,7 +30,7 @@ $ npm i http-session-store
 
 ## Options
 
-**const session = new HttpSessionStore([options]);**
+**const session = require('http-session-store')([options]);**
 
 | Property | Description                                                                           | Default     |
 |----------|---------------------------------------------------------------------------------------|-------------|

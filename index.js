@@ -41,7 +41,7 @@ class HttpSessionStore {
     };
 
     create(sessionId, userId) {
-        return this.client.setAsync(sessionId, userId, 'EX', this.idleTime).then(ret => {
+        return this.client.setAsync(sessionId, userId, 'EX', this.idleTime).then(() => {
             return this.client.setAsync(userId, sessionId, 'EX', this.maxTime);
         });
     }
@@ -52,18 +52,18 @@ class HttpSessionStore {
             return this.client.getAsync(userId || '').then(_sessionId => {
                 if (sessionId === _sessionId) {
                     // reset session idle timer
-                    return this.client.setAsync(sessionId, userId, 'EX', this.idleTime).then(ret => {
-                        return true;
+                    return this.client.setAsync(sessionId, userId, 'EX', this.idleTime).then(() => {
+                        return userId;
                     });
                 }
                 else {
-                    return false;
+                    return null;
                 }
             });
         });
     }
 
-    delete(sessionId) {
+    drop(sessionId) {
         return this.client.getAsync(sessionId).then(userId => {
             return this.client.delAsync(sessionId).then((a) => {
                 this.log('Entry session id deleted');
@@ -73,4 +73,6 @@ class HttpSessionStore {
     }
 }
 
-module.exports = HttpSessionStore;
+module.exports = (options) => {
+    return new HttpSessionStore(options);
+};
