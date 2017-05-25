@@ -47,7 +47,7 @@ class HttpSessionStore {
     }
 
     check(sessionId) {
-        return this.client.getAsync(sessionId).then(userId => {
+        return this.client.getAsync(sessionId || '').then(userId => {
             // prevent redis module warning
             return this.client.getAsync(userId || '').then(_sessionId => {
                 if (sessionId === _sessionId) {
