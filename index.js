@@ -13,7 +13,7 @@ class HttpSessionStore {
         this.idleTime = options.idleTime || 360;
         this.maxTime = options.maxTime || 3600;
 
-        this.client = redis.createClient(options.port || 6379, options.host || 'localhost', { no_ready_check: true });
+        this.client = redis.createClient(options.port || 6379, options.host || 'localhost');
 
         if (options.password) {
             this.client.auth(options.password, (err) => {
@@ -21,13 +21,17 @@ class HttpSessionStore {
             });
         }
 
+        this.client.on('error', e => {
+            console.error(e);
+        });
+
         this.client.on('connect', () => {
             this.log('Connected to Redis');
         });
     }
 
     log(message) {
-        if (process.env.NODE_ENV == 'test') {
+        if (process.env.NODE_DEBUG == 'redis') {
             console.log(message);
         }
     }
